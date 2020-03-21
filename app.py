@@ -74,7 +74,7 @@ def run(api, auth, phrases_fname, action_queue):
     """Run the main logic"""
     listener = Listener(api, phrases_fname, action_queue)
     stream = tweepy.Stream(auth, listener)
-    stream.filter(track=['need new music'])
+    stream.filter(track=['need new music', 'need new tunes', 'send new music'])
 
 
 def is_exception_whitelisted(whitelisted_errors, exception):
@@ -88,7 +88,7 @@ def main():
     """Main app outer loop"""
     args = get_args()
     api, auth = get_api(args.config_filename)
-    action_queue = queue.Queue()
+    action_queue = queue.LifoQueue()
 
     threading.Thread(target=action_loop, args=(
         api,

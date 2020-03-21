@@ -19,9 +19,16 @@ class Listener(StreamListener):
 
 
     def on_status(self, status):
-        if self.should_retweet(status):
-            self.action_queue.put(status)
-            self.already_retweeted.add(status.id)
+
+        try:
+            if self.should_retweet(status):
+                logger.info(f'should retweet: {status.text}')
+                self.action_queue.put(status)
+                self.already_retweeted.add(status.id)
+            else:
+                logger.info(f'should not retweet: {status.text}')
+        except Exception as exc:
+            logger.info(f'Exception: {exc}')
 
 
     def should_retweet(self, status):
