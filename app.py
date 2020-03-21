@@ -40,31 +40,28 @@ def get_args():
     parser.add_argument('-w', '--wait_time', help='Seconds to wait', type=int, default=301)
     return parser.parse_args()
 
+
 def load_auth_config(config_fname):
     """Read the config file and parse the JSON"""
     with open(config_fname, 'r') as config_file:
         return json.load(config_file)
 
+
 def action_loop(api, action_queue, wait_time):
-    logger.info('Launching action_loop')
+
     while True:
+        status = action_queue.get(block=True)
+
         try:
-            time.sleep(wait_time)
-
-            if action_queue.empty():
-                continue
-
-            status = action_queue.get()
             api.retweet(status.id)
-            logger.info(f'Liked Tweet: {status.text}')
-
-            reply_text = generate_reply_text(links_fname, tweet_message)
         except Exception as exc:
             if is_exception_whitelisted(WHITELISTED_ERRORS_LOOP, exc):
                 logger.warning(f'Whitelisted error in start_like_loop, ignoring: {str(exc)}')
                 continue
             raise
 
+        logger.info(f'Retweeted: {status.text}')
+        time.sleep(wait_time)
 
 def get_api(config_filename):
     config = load_auth_config(config_filename)
@@ -96,14 +93,11 @@ def main():
     threading.Thread(target=action_loop, args=(
         api,
         action_queue,
-        args.wait_time,
-        args.links_filename,
-        TWEET_MESSAGE)).start()
+        args.wait_time)).start()
 
     # Keep the app running when it periodically hangs
     while True:
         try:
-            logger.info('Launching main loop')
             run(api, auth, args.phrases_filename, action_queue)
         except Exception as exc:
             # Trying to figure out what kind of exception this throws 
@@ -116,6 +110,7 @@ def main():
             else:
                 logger.warning('Not whitelisted, sleeping for 10 mintues')
                 time.sleep(600)
+
 
 if __name__ == '__main__':
     main()
