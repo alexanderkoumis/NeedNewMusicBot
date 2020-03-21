@@ -37,7 +37,7 @@ class Listener(StreamListener):
 
     def phrase_matches(self, text):
         for phrase in self.load_phrases():
-            if phrase in text.lower():
+            if phrase.lower() in text.strip().lower():
                 return True
         return False
 
