@@ -22,11 +22,9 @@ class Listener(StreamListener):
 
         try:
             if self.should_retweet(status):
-                logger.info(f'should retweet: {status.text}')
+                # logger.info(f'should retweet: {status.text.replace('\n', '')}')
                 self.action_queue.put(status)
                 self.already_retweeted.add(status.id)
-            else:
-                logger.info(f'should not retweet: {status.text}')
         except Exception as exc:
             logger.info(f'Exception: {exc}')
 
@@ -35,6 +33,8 @@ class Listener(StreamListener):
         return (
             # They are looking for music
             self.phrase_matches(status.text) and
+            # They are not tweeting at someone
+            '@' not in status.text and
             # Is not a retweet
             not hasattr(status, 'retweeted_status') and
             # Haven't retweeted yet
