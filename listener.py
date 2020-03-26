@@ -34,6 +34,8 @@ class Listener(StreamListener):
             self.phrase_matches(status.text) and
             # They are not tweeting at someone
             '@' not in status.text and
+            # There are no links in the tweet
+            'http' not in status.text and
             # Is not a retweet
             not hasattr(status, 'retweeted_status') and
             # Haven't retweeted yet
