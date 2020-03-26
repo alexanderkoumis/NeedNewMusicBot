@@ -22,7 +22,6 @@ class Listener(StreamListener):
 
         try:
             if self.should_retweet(status):
-                # logger.info(f'should retweet: {status.text.replace('\n', '')}')
                 self.action_queue.put(status)
                 self.already_retweeted.add(status.id)
         except Exception as exc:
