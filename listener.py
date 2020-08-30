@@ -19,13 +19,12 @@ class Listener(StreamListener):
 
 
     def on_status(self, status):
-
         try:
             if self.should_retweet(status):
                 self.action_queue.put(status)
                 self.already_retweeted.add(status.id)
         except Exception as exc:
-            logger.info(f'Exception: {exc}')
+            logger.error('Exception: %s', exc)
 
 
     def should_retweet(self, status):
@@ -58,6 +57,6 @@ class Listener(StreamListener):
     def on_error(self, status_code):
         if status_code == 420:
             logger.error('Getting rate limited, chilling out')
-            time.sleep(60)
+            time.sleep(600)
         else:
-            logger.warning(f'Error code {status_code}')
+            logger.warning('Error code %s', status_code)
